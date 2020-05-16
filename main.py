@@ -9,6 +9,19 @@ from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 
 from AdamRegressor import AdamRegressor
+from LinearRegressor import LinearRegressor
+from SDGRegressor import SDGRegressor as MySDGRegressor
+
+
+def plot_loss(loss: list):
+    # construct a figure that plots the loss over time
+    fig = plt.figure()
+    plt.plot(np.arange(0, len(loss)), loss)
+    fig.suptitle("Training Loss")
+    plt.xlabel("iter #")
+    plt.ylabel("Loss")
+    plt.show()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -54,7 +67,7 @@ if __name__ == '__main__':
     print(W)
     print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.t_))
     y_adam = (0.5 - W[0] - (W[1] * X)) / W[2]
-
+    plot_loss(clf.loss_hist_)
 
     # plot the original data along with our line of best fit
     plt.figure()
