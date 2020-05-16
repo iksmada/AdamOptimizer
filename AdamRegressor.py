@@ -17,7 +17,7 @@ class AdamRegressor(BaseEstimator, RegressorMixin):
         self.tol = tol
         self.n_iter_no_change = n_iter_no_change
 
-    def fit(self, X, Y: np.uint8, batch_size, coef_init=None):
+    def fit(self, X, Y, batch_size, coef_init=None):
         # coef_init validation
         if coef_init is not None:
             coef_init = np.asarray(coef_init, dtype=np.float64, order="C")
@@ -51,9 +51,9 @@ class AdamRegressor(BaseEstimator, RegressorMixin):
                 self.t_ += 1
                 error = x.dot(theta) - y
                 loss_prev = loss
-                loss = np.sum(error ** 2)
+                loss = error.dot(error) / x.shape[0]
                 self.loss_hist_.append(loss)
-                if (loss + self.tol > loss_prev):
+                if loss + self.tol > loss_prev:
                     if loss_count == self.n_iter_no_change - 1:
                         break
                     else:

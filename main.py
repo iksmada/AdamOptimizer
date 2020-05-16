@@ -29,7 +29,7 @@ if __name__ == '__main__':
     N = 400
     batch_size = min(N, 40)
     Nit = 500
-    passo = 0.001
+    passo = 0.005
     (X, S) = make_blobs(n_samples=N, n_features=2, centers=2, cluster_std=2.5, random_state=95)
     #(X, S) = np.random.random((N, 2)), np.random.randint(0, 2, N)
     S = S * 2 - 1
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     plt.grid()
     plt.show()
 
-    passo = 0.0001
+    passo = 0.00001
     (X, S) = make_blobs(n_samples=N, n_features=N*2, centers=2, cluster_std=2.5, random_state=95)
     # (X, S) = np.random.random((N, 2)), np.random.randint(0, 2, N)
 

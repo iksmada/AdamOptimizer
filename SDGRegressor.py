@@ -48,7 +48,7 @@ class SDGRegressor(BaseEstimator, RegressorMixin):
                 self.t_ += 1
                 error = x.dot(theta) - y
                 loss_prev = loss
-                loss = np.sum(error ** 2)
+                loss = error.dot(error) / x.shape[0]
                 self.loss_hist_.append(loss)
                 if (loss + self.tol > loss_prev):
                     if loss_count == self.n_iter_no_change - 1:
