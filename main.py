@@ -13,13 +13,16 @@ from LinearRegressor import LinearRegressor
 from SDGRegressor import SDGRegressor as MySDGRegressor
 
 
-def plot_loss(loss: list, title: str = ""):
+def plot_loss(loss: list, loss_epochs: list, title: str = ""):
     # construct a figure that plots the loss over time
     fig = plt.figure()
-    plt.plot(np.arange(0, len(loss)), loss)
+    plt.plot(np.arange(0, len(loss)) * len(loss_epochs[0]) + len(loss_epochs[0])/2, loss, "b-", label='Epochs average')
+    loss_epochs = np.array(loss_epochs).ravel()
+    plt.plot(np.arange(0, len(loss_epochs)), loss_epochs, "co", label='Batches details')
     fig.suptitle("Training Loss - " + title)
     plt.xlabel("iter #")
     plt.ylabel("Loss")
+    plt.legend()
     plt.show()
 
 
@@ -112,12 +115,12 @@ if __name__ == '__main__':
     clf.fit(X, S, batch_size=batch_size, coef_init=w1)
     print('My SDG solution')
     print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
-    plot_loss(clf.loss_hist_, "My SDG, sis. subdet.")
+    plot_loss(clf.loss_hist_, clf.loss_epoch_, "My SDG, sis. subdet.")
 
     w1 = np.zeros((X.shape[1], 1))
     clf = AdamRegressor(eta0=passo, power_t=0.5, max_iter=Nit)
     clf.fit(X, S, batch_size=batch_size, coef_init=w1)
     print('Adam solution')
     print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
-    plot_loss(clf.loss_hist_, "Adam, sis. subdet.")
+    plot_loss(clf.loss_hist_, clf.loss_epoch_, "Adam, sis. subdet.")
 
