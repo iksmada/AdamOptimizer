@@ -38,7 +38,16 @@ if __name__ == '__main__':
     print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.t_))
     y_sdg = (0.5 - W[0] - (W[1] * X)) / W[2]
 
-    clf = AdamRegressor(eta0=passo, power_t=0.5, n_iter=Nit / N)
+    clf = MySDGRegressor(eta0=passo, power_t=0.5, n_iter=Nit/N)
+    clf.fit(X, S, coef_init=w1)
+    W = clf.coef_
+    print('My SDG solution')
+    print(W)
+    print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.t_))
+    y_msdg = (0.5 - W[0] - (W[1] * X)) / W[2]
+    plot_loss(clf.loss_hist_)
+
+    clf = AdamRegressor(eta0=0.5, power_t=0.5, n_iter=Nit / N)
     clf.fit(X, S, coef_init=w1)
     W = clf.coef_
     print('Adam solution')
@@ -50,9 +59,10 @@ if __name__ == '__main__':
     # plot the original data along with our line of best fit
     plt.figure()
     plt.scatter(X[:, 0], X[:, 1], marker="o", c=S)
-    plt.plot(X, y_sdg, "r-", label='SDG solution')
+    plt.plot(X, y_sdg, "b-", label='Sklearn SDG solution')
     plt.plot(X, y_adam, "g-", label='Adam solution')
-    plt.plot(X, y_opt, "b-", label='Optimal solution')
+    plt.plot(X, y_opt, "r-", label='Optimal solution')
+    plt.plot(X, y_msdg, "c-", label='My SDG solution')
     handles, labels = plt.gca().get_legend_handles_labels()
     by_label = OrderedDict(zip(labels, handles))
     plt.legend(by_label.values(), by_label.keys())
