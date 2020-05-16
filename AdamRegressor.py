@@ -1,7 +1,7 @@
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 import numpy as np
-import math
+from utils import data_iter
 
 
 class AdamRegressor(BaseEstimator, RegressorMixin):
@@ -14,7 +14,7 @@ class AdamRegressor(BaseEstimator, RegressorMixin):
         self.eta0 = eta0
         self.power_t = power_t
 
-    def fit(self, X, Y: np.uint8, coef_init):
+    def fit(self, X, Y: np.uint8, batch_size, coef_init=None):
         # coef_init validation
         if coef_init is not None:
             coef_init = np.asarray(coef_init, dtype=np.float64, order="C")
@@ -42,8 +42,7 @@ class AdamRegressor(BaseEstimator, RegressorMixin):
         v_t = 0
         theta = coef_init
         for i in range(int(self.n_iter)):
-            np.random.shuffle(X)
-            for x, y in zip(X, Y):
+            for x, y in data_iter(X, Y, batch_size):
                 self.t_ += 1
                 error = x.dot(theta) - y
                 self.loss_hist_.append(np.sum(error ** 2))

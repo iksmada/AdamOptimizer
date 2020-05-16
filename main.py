@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     args = vars(parser.parse_args())
     N = 10
-    Nit = 400
+    Nit = 40
     (X, S) = make_blobs(n_samples=N, n_features=2, centers=2, cluster_std=2.5, random_state=95)
 
     clf = LinearRegressor(gamma=0)
@@ -40,19 +40,20 @@ if __name__ == '__main__':
     y_opt = (0.5 - W[0] - (W[1] * X)) / W[2]
 
     w1 = np.zeros((X.shape[1], 1))
-    passo = 0.1
+    passo = 0.01
     clf = SGDRegressor(loss='squared_loss', penalty=None, alpha=0.0,
                        learning_rate='invscaling', eta0=passo, power_t=0.5,
-                       max_iter=Nit/N)
+                       max_iter=Nit)
     clf.fit(X, S, coef_init=w1)
     W = np.append(clf.intercept_, clf.coef_)
     print('Sklearn SDG solution')
     print(W)
-    print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.t_))
+    print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
     y_sdg = (0.5 - W[0] - (W[1] * X)) / W[2]
 
-    clf = MySDGRegressor(eta0=passo, power_t=0.5, n_iter=Nit/N)
-    clf.fit(X, S, coef_init=w1)
+    w1 = np.zeros((X.shape[1], 1))
+    clf = MySDGRegressor(eta0=passo, power_t=0.5, n_iter=Nit)
+    clf.fit(X, S, batch_size=min(N, 40), coef_init=w1)
     W = clf.coef_
     print('My SDG solution')
     print(W)
@@ -60,8 +61,9 @@ if __name__ == '__main__':
     y_msdg = (0.5 - W[0] - (W[1] * X)) / W[2]
     plot_loss(clf.loss_hist_)
 
-    clf = AdamRegressor(eta0=0.5, power_t=0.5, n_iter=Nit / N)
-    clf.fit(X, S, coef_init=w1)
+    w1 = np.zeros((X.shape[1], 1))
+    clf = AdamRegressor(eta0=passo, power_t=0.5, n_iter=Nit)
+    clf.fit(X, S, batch_size=min(N, 40), coef_init=w1)
     W = clf.coef_
     print('Adam solution')
     print(W)
