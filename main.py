@@ -29,7 +29,7 @@ if __name__ == '__main__':
     N = 400
     batch_size = min(N, 40)
     Nit = 500
-    passo = 0.005
+    passo = 0.01
     (X, S) = make_blobs(n_samples=N, n_features=2, centers=2, cluster_std=2.5, random_state=95)
     #(X, S) = np.random.random((N, 2)), np.random.randint(0, 2, N)
     S = S * 2 - 1
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     print(W)
     print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
     y_msdg = (- W[0] - (W[1] * X)) / W[2]
-    plot_loss(clf.loss_hist_, "My SDG, sis. sobredet.")
+    plot_loss(clf.loss_hist_, clf.loss_epoch_, "My SDG, sis. sobredet.")
 
     w1 = np.zeros((X.shape[1], 1))
     clf = AdamRegressor(eta0=passo, power_t=0.5, max_iter=Nit)
@@ -72,11 +72,11 @@ if __name__ == '__main__':
     print(W)
     print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
     y_adam = (- W[0] - (W[1] * X)) / W[2]
-    plot_loss(clf.loss_hist_, "Adam, sis. sobredet.")
+    plot_loss(clf.loss_hist_, clf.loss_epoch_, "Adam, sis. sobredet.")
 
     # plot the original data along with our line of best fit
     plt.figure()
-    plt.title("Sistema sobre sobredeterminado")
+    plt.title("Sistema sobredeterminado")
     plt.scatter(X[:, 0], X[:, 1], marker="o", c=S)
     plt.plot(X, y_sdg, "b-", label='Sklearn SDG solution')
     plt.plot(X, y_adam, "g-", label='Adam solution')
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     plt.grid()
     plt.show()
 
-    passo = 0.00001
+    passo = 0.0001
     (X, S) = make_blobs(n_samples=N, n_features=N*2, centers=2, cluster_std=2.5, random_state=95)
     # (X, S) = np.random.random((N, 2)), np.random.randint(0, 2, N)
 

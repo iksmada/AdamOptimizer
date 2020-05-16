@@ -8,9 +8,10 @@ class AdamRegressor(BaseEstimator, RegressorMixin):
     coef_ = None
     t_ = None
     loss_hist_ = None
+    loss_epoch_ = None
     n_iter_ = None
 
-    def __init__(self, max_iter=500, eta0=0.1, power_t=0.5, tol=1e-3, n_iter_no_change=5):
+    def __init__(self, max_iter=500, eta0=0.1, power_t=0.5, tol=1e-3, n_iter_no_change=2):
         self.max_iter = max_iter
         self.eta0 = eta0
         self.power_t = power_t
@@ -40,6 +41,7 @@ class AdamRegressor(BaseEstimator, RegressorMixin):
         self.t_ = 0
         self.n_iter_ = 0
         self.loss_hist_ = []
+        self.loss_epoch_ = []
         loss_count = 0
         loss = float("inf")
         m_t = 0
@@ -47,28 +49,33 @@ class AdamRegressor(BaseEstimator, RegressorMixin):
         theta = coef_init
         for i in range(int(self.max_iter)):
             self.n_iter_ += 1
+            loss_epoch = []
             for x, y in data_iter(X, Y, batch_size):
                 self.t_ += 1
                 error = x.dot(theta) - y
-                loss_prev = loss
                 loss = error.dot(error) / x.shape[0]
-                self.loss_hist_.append(loss)
-                if loss + self.tol > loss_prev:
-                    if loss_count == self.n_iter_no_change - 1:
-                        break
-                    else:
-                        loss_count += 1
-                        loss = min(loss, loss_prev)
-                else:
-                    loss_count = 0
+                loss_epoch.append(loss)
                 gradient = (x.T.dot(error)) / x.shape[0]
                 m_t = beta_1*m_t + (1 - beta_1) * gradient
                 v_t = beta_2*v_t + (1 - beta_2) * gradient * gradient
                 m_hat = m_t / (1 - (beta_1**self.t_))
                 v_hat = v_t / (1 - (beta_2**self.t_))
                 theta = theta - self.eta0*m_hat / (v_hat**self.power_t + epsilon)
-            if loss_count == self.n_iter_no_change - 1:
-                break
+
+            if self.loss_hist_:
+                loss_prev = min(self.loss_hist_[-self.n_iter_no_change + 1:])
+            else:
+                loss_prev = float("inf")
+            loss = np.average(loss_epoch)
+            self.loss_epoch_.append(loss_epoch)
+            self.loss_hist_.append(loss)
+            if loss + self.tol > loss_prev:
+                if loss_count == self.n_iter_no_change - 1:
+                    break
+                else:
+                    loss_count += 1
+            else:
+                loss_count = 0
         self.coef_ = theta
         return self
 
