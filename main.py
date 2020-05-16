@@ -4,7 +4,7 @@ from collections import OrderedDict
 import numpy as np
 
 from sklearn.linear_model import SGDRegressor
-from sklearn.datasets import make_blobs
+from sklearn.datasets import make_blobs, make_regression
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 
@@ -30,7 +30,8 @@ if __name__ == '__main__':
     Nit = 40
     passo = 0.01
     (X, S) = make_blobs(n_samples=N, n_features=2, centers=2, cluster_std=2.5, random_state=95)
-    # (X, S) = np.random.random((N, 2)), np.random.randint(0, 2, N)
+    #(X, S) = np.random.random((N, 2)), np.random.randint(0, 2, N)
+    S = S * 2 - 1
 
     clf = LinearRegressor(gamma=0)
     clf.fit(X, S)
@@ -39,7 +40,7 @@ if __name__ == '__main__':
     print(W)
     print("Obtained MSE = %.3f" % mean_squared_error(S, clf.predict(X)))
     # 0.5 é a media entre as duas classes !
-    y_opt = (0.5 - W[0] - (W[1] * X)) / W[2]
+    y_opt = (-W[0] - (W[1] * X)) / W[2]
 
     w1 = np.zeros((X.shape[1], 1))
     clf = SGDRegressor(loss='squared_loss', penalty=None, alpha=0.0,
@@ -50,7 +51,7 @@ if __name__ == '__main__':
     print('Sklearn SDG solution')
     print(W)
     print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
-    y_sdg = (0.5 - W[0] - (W[1] * X)) / W[2]
+    y_sdg = (- W[0] - (W[1] * X)) / W[2]
 
     w1 = np.zeros((X.shape[1], 1))
     clf = MySDGRegressor(eta0=passo, power_t=0.5, n_iter=Nit)
@@ -59,7 +60,7 @@ if __name__ == '__main__':
     print('My SDG solution')
     print(W)
     print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.t_))
-    y_msdg = (0.5 - W[0] - (W[1] * X)) / W[2]
+    y_msdg = (- W[0] - (W[1] * X)) / W[2]
     plot_loss(clf.loss_hist_, "My SDG, sis. sobredet.")
 
     w1 = np.zeros((X.shape[1], 1))
@@ -69,7 +70,7 @@ if __name__ == '__main__':
     print('Adam solution')
     print(W)
     print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.t_))
-    y_adam = (0.5 - W[0] - (W[1] * X)) / W[2]
+    y_adam = (- W[0] - (W[1] * X)) / W[2]
     plot_loss(clf.loss_hist_, "Adam, sis. sobredet.")
 
     # plot the original data along with our line of best fit

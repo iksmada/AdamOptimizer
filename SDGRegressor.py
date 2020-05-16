@@ -16,7 +16,7 @@ class SDGRegressor(BaseEstimator, RegressorMixin):
         self.eta0 = eta0
         self.power_t = power_t
 
-    def fit(self, X, Y: np.uint8, batch_size, coef_init=None):
+    def fit(self, X, Y, batch_size, coef_init=None):
         # coef_init validation
         if coef_init is not None:
             coef_init = np.asarray(coef_init, dtype=np.float64, order="C")
@@ -28,9 +28,7 @@ class SDGRegressor(BaseEstimator, RegressorMixin):
             coef_init = np.zeros((X.shape[1] + 1,))
 
         # label validation
-        Y = check_array(Y, dtype='uint8', ensure_2d=False)
-        # get classes
-        self.classes_ = np.unique(Y)
+        Y = check_array(Y, ensure_2d=False)
         # Check that X and Y have correct shape
         X, Y = check_X_y(X, Y, y_numeric=True)
         # add bias to X

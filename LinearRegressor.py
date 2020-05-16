@@ -10,11 +10,9 @@ class LinearRegressor(BaseEstimator, RegressorMixin):
     def __init__(self, gamma=1):
         self.gamma = gamma
 
-    def fit(self, X, y: np.uint8):
+    def fit(self, X, y):
         # label validation
-        y = check_array(y, dtype='uint8', ensure_2d=False)
-        # get classes
-        self.classes_ = list(range(0, y.max()+1))
+        y = check_array(y, ensure_2d=False)
         # Check that X and y have correct shape
         X, y = check_X_y(X, y, y_numeric=True)
         # add bias to X
