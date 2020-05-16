@@ -8,11 +8,14 @@ class AdamRegressor(BaseEstimator, RegressorMixin):
     coef_ = None
     t_ = None
     loss_hist_ = None
+    n_iter_ = None
 
-    def __init__(self, n_iter=500, eta0=0.1, power_t=0.5):
-        self.n_iter = n_iter
+    def __init__(self, max_iter=500, eta0=0.1, power_t=0.5, tol=1e-3, n_iter_no_change=5):
+        self.max_iter = max_iter
         self.eta0 = eta0
         self.power_t = power_t
+        self.tol = tol
+        self.n_iter_no_change = n_iter_no_change
 
     def fit(self, X, Y: np.uint8, batch_size, coef_init=None):
         # coef_init validation
@@ -35,22 +38,37 @@ class AdamRegressor(BaseEstimator, RegressorMixin):
         beta_2 = 0.999
         epsilon = 1.e-8
         self.t_ = 0
+        self.n_iter_ = 0
         self.loss_hist_ = []
+        loss_count = 0
+        loss = float("inf")
         m_t = 0
         v_t = 0
         theta = coef_init
-        for i in range(int(self.n_iter)):
+        for i in range(int(self.max_iter)):
+            self.n_iter_ += 1
             for x, y in data_iter(X, Y, batch_size):
                 self.t_ += 1
                 error = x.dot(theta) - y
-                self.loss_hist_.append(np.sum(error ** 2))
-                gradient = (x.T.dot(error))
+                loss_prev = loss
+                loss = np.sum(error ** 2)
+                self.loss_hist_.append(loss)
+                if (loss + self.tol > loss_prev):
+                    if loss_count == self.n_iter_no_change - 1:
+                        break
+                    else:
+                        loss_count += 1
+                        loss = min(loss, loss_prev)
+                else:
+                    loss_count = 0
+                gradient = (x.T.dot(error)) / x.shape[0]
                 m_t = beta_1*m_t + (1 - beta_1) * gradient
                 v_t = beta_2*v_t + (1 - beta_2) * gradient * gradient
                 m_hat = m_t / (1 - (beta_1**self.t_))
                 v_hat = v_t / (1 - (beta_2**self.t_))
                 theta = theta - self.eta0*m_hat / (v_hat**self.power_t + epsilon)
-
+            if loss_count == self.n_iter_no_change - 1:
+                break
         self.coef_ = theta
         return self
 

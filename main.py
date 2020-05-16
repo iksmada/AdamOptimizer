@@ -26,9 +26,10 @@ def plot_loss(loss: list, title: str = ""):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     args = vars(parser.parse_args())
-    N = 10
-    Nit = 40
-    passo = 0.01
+    N = 400
+    batch_size = min(N, 40)
+    Nit = 500
+    passo = 0.001
     (X, S) = make_blobs(n_samples=N, n_features=2, centers=2, cluster_std=2.5, random_state=95)
     #(X, S) = np.random.random((N, 2)), np.random.randint(0, 2, N)
     S = S * 2 - 1
@@ -54,22 +55,22 @@ if __name__ == '__main__':
     y_sdg = (- W[0] - (W[1] * X)) / W[2]
 
     w1 = np.zeros((X.shape[1], 1))
-    clf = MySDGRegressor(eta0=passo, power_t=0.5, n_iter=Nit)
-    clf.fit(X, S, batch_size=min(N, 40), coef_init=w1)
+    clf = MySDGRegressor(eta0=passo, power_t=0.5, max_iter=Nit)
+    clf.fit(X, S, batch_size=batch_size, coef_init=w1)
     W = clf.coef_
     print('My SDG solution')
     print(W)
-    print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.t_))
+    print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
     y_msdg = (- W[0] - (W[1] * X)) / W[2]
     plot_loss(clf.loss_hist_, "My SDG, sis. sobredet.")
 
     w1 = np.zeros((X.shape[1], 1))
-    clf = AdamRegressor(eta0=passo, power_t=0.5, n_iter=Nit)
-    clf.fit(X, S, batch_size=min(N, 40), coef_init=w1)
+    clf = AdamRegressor(eta0=passo, power_t=0.5, max_iter=Nit)
+    clf.fit(X, S, batch_size=batch_size, coef_init=w1)
     W = clf.coef_
     print('Adam solution')
     print(W)
-    print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.t_))
+    print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
     y_adam = (- W[0] - (W[1] * X)) / W[2]
     plot_loss(clf.loss_hist_, "Adam, sis. sobredet.")
 
@@ -89,13 +90,13 @@ if __name__ == '__main__':
     plt.show()
 
     passo = 0.0001
-    (X, S) = make_blobs(n_samples=N, n_features=N*10, centers=2, cluster_std=2.5, random_state=95)
+    (X, S) = make_blobs(n_samples=N, n_features=N*2, centers=2, cluster_std=2.5, random_state=95)
     # (X, S) = np.random.random((N, 2)), np.random.randint(0, 2, N)
 
     clf = LinearRegressor(gamma=0)
     clf.fit(X, S)
     print('Optimal solution')
-    print("Obtained MSE = %.0E" % mean_squared_error(S, clf.predict(X)))
+    print("Obtained MSE = %.3f" % mean_squared_error(S, clf.predict(X)))
     # 0.5 é a media entre as duas classes !
 
     w1 = np.zeros((X.shape[1], 1))
@@ -104,19 +105,19 @@ if __name__ == '__main__':
                        max_iter=Nit)
     clf.fit(X, S, coef_init=w1)
     print('Sklearn SDG solution')
-    print("Obtained MSE = %.0E after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
+    print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
 
     w1 = np.zeros((X.shape[1], 1))
-    clf = MySDGRegressor(eta0=passo, power_t=0.5, n_iter=Nit)
-    clf.fit(X, S, batch_size=min(N, 40), coef_init=w1)
+    clf = MySDGRegressor(eta0=passo, power_t=0.5, max_iter=Nit)
+    clf.fit(X, S, batch_size=batch_size, coef_init=w1)
     print('My SDG solution')
-    print("Obtained MSE = %.0E after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.t_))
+    print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
     plot_loss(clf.loss_hist_, "My SDG, sis. subdet.")
 
     w1 = np.zeros((X.shape[1], 1))
-    clf = AdamRegressor(eta0=passo, power_t=0.5, n_iter=Nit)
-    clf.fit(X, S, batch_size=min(N, 40), coef_init=w1)
+    clf = AdamRegressor(eta0=passo, power_t=0.5, max_iter=Nit)
+    clf.fit(X, S, batch_size=batch_size, coef_init=w1)
     print('Adam solution')
-    print("Obtained MSE = %.0E after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.t_))
+    print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
     plot_loss(clf.loss_hist_, "Adam, sis. subdet.")
 
