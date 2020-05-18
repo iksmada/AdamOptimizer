@@ -18,7 +18,7 @@ def plot_loss(loss: list, loss_epochs: list, title: str = ""):
     fig = plt.figure()
     plt.plot(np.arange(0, len(loss)) * len(loss_epochs[0]) + len(loss_epochs[0])/2, loss, "b-", label='Epochs average')
     loss_epochs = np.array(loss_epochs).ravel()
-    plt.plot(np.arange(0, len(loss_epochs)), loss_epochs, "co", label='Batches details')
+    plt.plot(np.arange(0, len(loss_epochs)), loss_epochs, "c-", label='Batches details')
     fig.suptitle("Training Loss - " + title)
     plt.xlabel("iter #")
     plt.ylabel("Loss")
@@ -99,7 +99,7 @@ if __name__ == '__main__':
     clf = LinearRegressor(gamma=0)
     clf.fit(X, S)
     print('Optimal solution')
-    print("Obtained MSE = %.3f" % mean_squared_error(S, clf.predict(X)))
+    print("Obtained MSE = %.0E" % mean_squared_error(S, clf.predict(X)))
     # 0.5 é a media entre as duas classes !
 
     w1 = np.zeros((X.shape[1], 1))
@@ -108,19 +108,19 @@ if __name__ == '__main__':
                        max_iter=Nit)
     clf.fit(X, S, coef_init=w1)
     print('Sklearn SDG solution')
-    print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
+    print("Obtained MSE = %.0E after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
 
     w1 = np.zeros((X.shape[1], 1))
     clf = MySDGRegressor(eta0=passo, power_t=0.5, max_iter=Nit)
     clf.fit(X, S, batch_size=batch_size, coef_init=w1)
     print('My SDG solution')
-    print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
+    print("Obtained MSE = %.0E after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
     plot_loss(clf.loss_hist_, clf.loss_epoch_, "My SDG, sis. subdet.")
 
     w1 = np.zeros((X.shape[1], 1))
     clf = AdamRegressor(eta0=passo, power_t=0.5, max_iter=Nit)
     clf.fit(X, S, batch_size=batch_size, coef_init=w1)
     print('Adam solution')
-    print("Obtained MSE = %.3f after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
+    print("Obtained MSE = %.0E after %d iterations" % (mean_squared_error(S, clf.predict(X)), clf.n_iter_))
     plot_loss(clf.loss_hist_, clf.loss_epoch_, "Adam, sis. subdet.")
 
